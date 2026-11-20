@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="필체연구소">
   <meta name="description" content="가이드 종이에 내 글씨를 쓰고 사진을 올리면 웹에서 바로 내 필체로 글을 쓰는 손글씨 스튜디오">
   <title>필체연구소 — 나의 손글씨를 웹에서</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.0">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -32,7 +32,7 @@
         <span class="privacy-dot"></span> AI API 없이 실행
         <p>사진과 손글씨 데이터는<br>내 브라우저에만 보관돼요.</p>
       </div>
-      <div class="sidebar-footer">V1.2 · 2026</div>
+      <div class="sidebar-footer">V2.0 · iPad GUIDE</div>
     </aside>
 
     <main id="home" class="content">
@@ -46,7 +46,7 @@
           <div class="hero-copy">
             <div class="eyebrow"><span class="sparkle">✦</span> HANDWRITING MADE PERSONAL</div>
             <h1>내 손글씨를,<br><em>웹에서도 그대로.</em></h1>
-            <p>종이에 쓴 글씨를 사진으로 올려보세요.<br>나만의 글씨로 편지와 메모를 만들 수 있어요.</p>
+            <p>아이패드 가이드에 Apple Pencil로 써보세요.<br>내 자음·모음으로 새로운 한글 문장도 만들어요.</p>
             <div class="hero-actions"><a class="btn btn-primary" href="#guide">내 손글씨 만들기 <span>↗</span></a><a class="btn btn-text" href="#studio">에디터 구경하기 <span>→</span></a></div>
           </div>
           <div class="hero-art" aria-label="손글씨 편지 일러스트">
@@ -58,17 +58,28 @@
         </section>
 
         <section class="summary-row" aria-label="서비스 요약">
-          <div class="summary-item"><div class="summary-icon">01</div><div><strong>3장의 가이드</strong><small>글씨를 직접 쓰고</small></div></div>
-          <div class="summary-item"><div class="summary-icon">02</div><div><strong>사진으로 등록</strong><small>영역을 정확히 추출하고</small></div></div>
+            <div class="summary-item"><div class="summary-icon">01</div><div><strong>아이패드 가이드</strong><small>Pencil로 직접 쓰고</small></div></div>
+            <div class="summary-item"><div class="summary-icon">02</div><div><strong>내 한글 조합</strong><small>새로운 글자도 만들고</small></div></div>
           <div class="summary-item"><div class="summary-icon">03</div><div><strong>웹에서 작성</strong><small>이미지로 저장해요</small></div></div>
         </section>
 
         <section id="guide" class="section-block">
+          <div class="section-heading"><div><span class="step-overline">iPad · 내 필체 만들기</span><h2>출력 없이, 여기에서 바로 써주세요</h2><p>기본 자음·모음 33칸을 채우면 모든 현대 한글 11,172자를 조합할 수 있어요. 칸 안에 크게 쓰고 ‘이 페이지 저장’을 눌러주세요.</p></div></div>
+          <div class="digital-guide">
+            <div class="guide-toolbar"><label><input type="checkbox" id="pencilOnly"> Pencil로만 쓰기 (손바닥 터치 방지)</label><span id="guideProgress" role="status">기본 필체 0 / 33</span></div>
+            <label class="guide-tabs">작성할 용지 <select id="guideTabs" aria-label="작성할 가이드 선택"></select></label>
+            <p id="guideHelp" class="guide-help"></p>
+            <div id="digitalGrid" class="digital-grid"></div>
+            <div class="guide-save"><span id="guideSaveStatus" role="status">저장한 필체는 이 브라우저에 보관돼요.</span><button class="btn btn-primary" id="saveGuide">이 페이지 저장</button><button class="btn btn-outline" id="nextGuide">다음 페이지 →</button><a class="btn btn-outline" href="#studio">문장 써보기 ↓</a></div>
+            <p class="guide-help">자음 19개와 모음 14개를 써주세요. 겹모음·겹받침은 자동 조합돼요. 이어서 완성 글자 용지를 채우면 해당 글자는 원래 모양을 그대로 사용해요. 조합 글자는 획의 배치·비율이 달라질 수 있어요. 앱 안에서 글씨를 만드는 방식이며 TTF 폰트 파일을 생성하지는 않아요.</p>
+          </div>
+          <details class="paper-guide"><summary>종이 가이드 PDF · 사진으로 등록하기</summary>
           <div class="section-heading"><div><span class="step-overline">STEP 01 / 가이드 용지</span><h2>먼저, 내 글씨를 모아볼까요?</h2><p>작은 예시 글자를 보고 칸마다 검은 펜으로 적어주세요. A4 실제 크기로 인쇄하는 것이 좋아요.</p></div><span class="section-number">01</span></div>
           <div class="guide-card">
             <div class="guide-preview"><div class="preview-page"><div class="preview-top"></div><div class="preview-page-title">나의 손글씨 수집 시트</div><div class="mini-grid" id="miniGrid"></div><div class="preview-line"></div><div class="preview-line second"></div></div></div>
             <div class="guide-info"><div class="tag">A4 · 총 3페이지</div><h3>손글씨 243칸 수집용지</h3><p>자주 쓰는 한글 글자와 숫자, 문장부호가 들어 있어요. 각 칸의 왼쪽 위 회색 예시는 참고용이고, 그 아래에 직접 글씨를 쓰시면 돼요.</p><ul class="tips"><li>검은색 펜으로 또렷하게</li><li>칸 밖으로 벗어나지 않게</li><li>사진에 네 모서리 검은 마커 포함</li></ul><a class="btn btn-primary" href="손글씨_가이드용지_3장.pdf" download>가이드 용지 PDF 받기 <span>↓</span></a><div class="tiny-note">* 출력 시 '페이지에 맞춤' 대신 실제 크기(100%) 권장</div></div>
           </div>
+          </details>
         </section>
 
         <section id="upload" class="section-block">
@@ -111,6 +122,8 @@
   <dialog id="calibrationDialog" class="modal calibrate-modal"><div class="modal-bar"><div><span class="step-overline">사진 정렬</span><h3 id="calibrationHeading">네 모서리를 지정해 주세요</h3></div><button class="modal-close" id="closeCalibration" aria-label="닫기">×</button></div><p class="modal-desc" id="calibrationHelp">사진에 있는 검은 사각 마커의 <b>가운데</b>를 왼쪽 위 → 오른쪽 위 → 오른쪽 아래 → 왼쪽 아래 순서로 눌러주세요.</p><div class="calibration-stage"><canvas id="calibrationCanvas" width="720" height="500"></canvas></div><div class="calibration-status"><span id="calibrationSteps">마커 0 / 4개 선택됨</span><span class="calibration-tip">사진은 다른 서버로 전송되지 않습니다</span></div><div class="modal-actions"><button class="btn btn-outline" id="resetPoints">다시 지정</button><button class="btn btn-primary" id="confirmCalibration" disabled>4개 마커 지정하기</button></div></dialog>
   <dialog id="drawDialog" class="modal draw-modal"><div class="modal-bar"><div><span class="step-overline">빠른 글자 추가</span><h3>“<span id="drawCharTitle">가</span>” 글자 직접 쓰기</h3></div><button class="modal-close" id="closeDraw" aria-label="닫기">×</button></div><p class="modal-desc">네모 안에 마우스나 손가락으로 크게 써주세요. 등록하면 미리보기에 바로 적용돼요.</p><div class="draw-pad-frame"><canvas id="drawCanvas" width="350" height="350"></canvas></div><div class="modal-actions"><button id="clearDrawing" class="btn btn-outline">다시 쓰기</button><button id="saveDrawing" class="btn btn-primary">이 글자 저장하기 <span>✓</span></button></div></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js" defer></script>
+  <script src="hangul-ink.js?v=2.0" defer></script>
+  <script src="digital-guide.js?v=2.0" defer></script>
+  <script src="app.js?v=2.0" defer></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   const glyphData = new Map(); // char => PNG data URL
   const glyphImages = new Map();
   const tintedCache = new Map();
+  const H = window.HangulInk;
   let db = null, currentPage = -1, calibrationImage = null;
   let markerPoints = [], warpedPage = null, calibrationMode = 'choose';
   let pendingChar = '', drawing = false, previousDrawPoint = null;
@@ -45,7 +46,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   function setGlyphInMemory(ch,url) {
     glyphData.set(ch,url);
     const img=new Image();
-    img.onload=()=>{glyphImages.set(ch,img);clearTintCache();renderLetter();};
+    img.onload=()=>{glyphImages.set(ch,img);clearTintCache();renderLetter();renderMissing();};
     img.src=url;
   }
   function clearTintCache(){tintedCache.clear();}
@@ -58,7 +59,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
           tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
           for(const item of items) tx.objectStore(STORE).put(item);
         });
-      }catch(e){console.error(e);toast('글자 저장에 문제가 생겼어요. JSON 백업을 확인해 주세요.');}
+      }catch(e){console.error(e);toast('글자 저장에 문제가 생겼어요. JSON 백업을 확인해 주세요.');throw e;}
     }
     updateCoverage();
   }
@@ -70,6 +71,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
       else{card.classList.remove('done');status.textContent='사진 선택하기 ↗';}
     }
     renderMissing();
+    $('guideProgress').textContent = `기본 필체 ${[...H.initials,...H.basicVowels].filter(c=>glyphData.has(c)).length} / 33`;
   }
 
   // A sheet must be photographed with its four black registration squares visible.
@@ -259,7 +261,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   function getTintedGlyph(ch){
     const key=ch+'|'+settings.color;
     if(tintedCache.has(key))return tintedCache.get(key);
-    const image=glyphImages.get(ch);if(!image)return null;
+    const image=glyphImages.get(ch) || H.compose(ch,c=>glyphImages.get(c),()=>document.createElement('canvas'));if(!image)return null;
     const cv=document.createElement('canvas');cv.width=128;cv.height=128;
     const cx=cv.getContext('2d');cx.drawImage(image,0,0,128,128);
     cx.globalCompositeOperation='source-in';cx.fillStyle=settings.color;cx.fillRect(0,0,128,128);
@@ -312,10 +314,15 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   }
   function renderMissing(){
     const text=$('editorText').value;
-    const missing=[...new Set([...text].filter(ch=>ch.trim()&&!glyphData.has(ch)))];
+    const isReady = ch => glyphData.has(ch) || (H.parts(ch) && H.dependencies(ch).every(c=>glyphData.has(c)));
+    const chars = [...text].filter(ch=>ch.trim());
+    const direct = chars.filter(ch=>glyphData.has(ch)).length;
+    const combined = chars.filter(ch=>!glyphData.has(ch)&&isReady(ch)).length;
+    $('coverage').textContent = `직접 쓴 글자 ${direct} · 조합 ${combined} · 기본 글꼴 ${chars.length-direct-combined}`;
+    const missing=[...new Set(chars.filter(ch=>!isReady(ch)))];
     const parent=$('missingGlyphs');parent.replaceChildren();
     if(!missing.length){
-      const el=document.createElement('span');el.className='missing-none';el.textContent='✓ 이 문장의 모든 글자가 등록되어 있어요!';parent.appendChild(el);return;
+      const el=document.createElement('span');el.className='missing-none';el.textContent='✓ 이 문장을 내 글씨로 표현할 준비가 됐어요.';parent.appendChild(el);return;
     }
     for(const ch of missing.slice(0,60)){
       const btn=document.createElement('button');btn.className='missing-glyph';btn.textContent=ch;
@@ -385,6 +392,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
       await saveGlyphs(items);
       if(Array.isArray(parsed.pageStats)){for(let i=0;i<3;i++)pageStats[i]=parsed.pageStats[i]||null;localStorage.setItem('pilche-page-stats',JSON.stringify(pageStats));}
       updateCoverage();renderLetter();toast(`백업에서 글자 ${items.length}개를 복구했어요.`);
+      window.dispatchEvent(new Event('pilche-guide-refresh'));
     }catch(err){toast(err.message||'백업을 불러오지 못했어요.');}
     e.target.value='';
   });
@@ -394,6 +402,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
     glyphData.clear();glyphImages.clear();clearTintCache();
     for(let i=0;i<3;i++)pageStats[i]=null;
     localStorage.removeItem('pilche-page-stats');updateCoverage();renderLetter();toast('등록된 손글씨가 초기화되었어요.');
+    window.dispatchEvent(new Event('pilche-guide-refresh'));
   });
   // Mini printed sheet display preview.
   for(const ch of LAYOUT.pages[0]){
@@ -405,5 +414,9 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('./sw.js').catch(err=>console.info('Offline installation is not available:',err));
   }
-  initDb().finally(()=>{updateCoverage();renderLetter();});
+  async function eraseGlyph(ch) {
+    if(db) await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(ch);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
+    glyphData.delete(ch);glyphImages.delete(ch);clearTintCache();updateCoverage();renderLetter();
+  }
+  initDb().finally(()=>{updateCoverage();renderLetter();window.initDigitalGuide({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,toast,isPersistent:()=>!!db});});
 })();
