@@ -364,6 +364,36 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   }
   syncRange('fontSize','size','px');syncRange('letterSpacing','spacing','px');syncRange('naturalness','naturalness');
   $('editorText').addEventListener('input',()=>{renderLetter();renderMissing();});
+  let fontDownloadUrl=null,lastFontFace=null;
+  $('generateTtf').addEventListener('click',async()=>{
+    const button=$('generateTtf'),status=$('ttfStatus');
+    const missing=[...H.initials,...H.basicVowels].filter(ch=>!glyphData.has(ch));
+    if(missing.length){status.textContent=`필수 가이드 ${missing.length}칸이 남았어요: ${missing.join(' ')}. 가이드에서 먼저 작성해 주세요.`;return;}
+    button.disabled=true;$('downloadTtf').hidden=true;$('ttfPreview').hidden=true;
+    try {
+      const family=$('fontFamilyName').value.trim()||'나의 필체';
+      const snapshot=[...glyphData.entries()],outlines=new Map();
+      status.textContent='손글씨 윤곽을 만드는 중…';
+      const cv=document.createElement('canvas');cv.width=cv.height=128;const cx=cv.getContext('2d');
+      for(let i=0;i<snapshot.length;i++) {
+        const [ch,url]=snapshot[i],image=new Image();
+        await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error(`‘${ch}’ 이미지를 읽지 못했어요. 다시 써주세요.`));image.src=url;});
+        cx.clearRect(0,0,128,128);cx.drawImage(image,0,0,128,128);
+        const contours=window.PilcheFont.trace(cx.getImageData(0,0,128,128).data);
+        if(contours.length)outlines.set(ch,contours);
+        if(i%8===0)await new Promise(r=>setTimeout(r,0));
+      }
+      const result=await window.PilcheFont.build({glyphs:outlines,H,family,progress:p=>{status.textContent=`한글 폰트 만드는 중… ${p}%`;}});
+      const face=new FontFace('PilchePreview'+Date.now(),result.buffer);await face.load();
+      if(lastFontFace)document.fonts.delete(lastFontFace);document.fonts.add(face);lastFontFace=face;
+      if(fontDownloadUrl)URL.revokeObjectURL(fontDownloadUrl);
+      fontDownloadUrl=URL.createObjectURL(new Blob([result.buffer],{type:'font/ttf'}));
+      const link=$('downloadTtf');link.href=fontDownloadUrl;link.download=family.replace(/[\\/:*?"<>|]/g,'_')+'.ttf';link.hidden=false;
+      $('ttfPreview').style.fontFamily=`"${face.family}", sans-serif`;$('ttfPreview').textContent=$('editorText').value||'나의 손글씨로 쓰는 오늘';$('ttfPreview').hidden=false;
+      status.textContent=`✓ ‘${family}’ TTF 생성·폰트 로딩 확인 완료. 아래 버튼으로 파일을 저장하세요. (한글 11,172자 포함)`;
+    } catch(e) {status.textContent=e.message||'폰트를 만들지 못했어요. 다시 시도해 주세요.';}
+    finally {button.disabled=false;}
+  });
   document.querySelectorAll('.swatch').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.swatch').forEach(btn=>btn.classList.remove('selected'));
     b.classList.add('selected');settings.color=b.dataset.color;clearTintCache();renderLetter();

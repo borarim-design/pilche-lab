@@ -14,12 +14,11 @@
     const p = parts(ch);
     return p ? [p[0], ...(compoundV[p[1]] || [p[1]]), ...(p[2] ? compoundT[p[2]] || [p[2]] : [])] : [ch];
   }
-  function compose(ch, lookup, createCanvas) {
+  function placements(ch) {
     const p = parts(ch);
-    if (!p || !dependencies(ch).every(c => lookup(c))) return null;
-    const cv = createCanvas(); cv.width = cv.height = 128;
-    const cx = cv.getContext('2d');
-    const put = (c,x,y,w,h) => cx.drawImage(lookup(c),13,13,102,102,x,y,w,h);
+    if(!p)return null;
+    const result=[];
+    const put = (char,x,y,w,h) => result.push({char,x,y,w,h});
     const [l,v,t] = p, height = t ? 76 : 110, top = 7;
     if (compoundV[v]) {
       const [horizontal, vertical] = compoundV[v];
@@ -38,7 +37,14 @@
       if (group) {put(group[0],22,94,36,26);put(group[1],71,94,36,26);}
       else put(t,24,94,80,26);
     }
+    return result;
+  }
+  function compose(ch, lookup, createCanvas) {
+    if (!parts(ch) || !dependencies(ch).every(c => lookup(c))) return null;
+    const cv = createCanvas();cv.width=cv.height=128;
+    const cx=cv.getContext('2d');
+    for(const p of placements(ch))cx.drawImage(lookup(p.char),13,13,102,102,p.x,p.y,p.w,p.h);
     return cv;
   }
-  window.HangulInk = {initials,basicVowels,parts,dependencies,compose};
+  window.HangulInk = {initials,basicVowels,parts,dependencies,placements,compose};
 })();
