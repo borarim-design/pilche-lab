@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="필체연구소">
   <meta name="description" content="가이드 종이에 내 글씨를 쓰고 사진을 올리면 웹에서 바로 내 필체로 글을 쓰는 손글씨 스튜디오">
   <title>필체연구소 — 나의 손글씨를 웹에서</title>
-  <link rel="stylesheet" href="styles.css?v=2.2">
+  <link rel="stylesheet" href="styles.css?v=2.3">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -32,7 +32,7 @@
         <span class="privacy-dot"></span> AI API 없이 실행
         <p>사진과 손글씨 데이터는<br>내 브라우저에만 보관돼요.</p>
       </div>
-      <div class="sidebar-footer">V2.2 · TTF EXPORT</div>
+      <div class="sidebar-footer">V2.3 · PEN</div>
     </aside>
 
     <main id="home" class="content">
@@ -69,6 +69,12 @@
             <div class="guide-toolbar"><label><input type="checkbox" id="pencilOnly"> Pencil로만 쓰기 (손바닥 터치 방지)</label><span id="guideProgress" role="status">완성 글자 0 / 120</span></div>
             <label class="guide-tabs">작성할 용지 <select id="guideTabs" aria-label="작성할 가이드 선택"></select></label>
             <p id="guideHelp" class="guide-help"></p>
+            <button class="btn btn-primary" id="openFocus">펜 집중 모드</button>
+            <dialog id="focusPad" aria-label="펜 집중 모드">
+              <header><canvas id="focusExample" width="420" height="120" aria-label="작성할 글자"></canvas><button id="closeFocus" aria-label="집중 모드 닫기">닫기</button></header>
+              <div id="focusSurface"></div>
+              <footer><button id="focusPrev">이전</button><button id="focusUndo">획 취소</button><button id="focusNext">다음</button></footer>
+            </dialog>
             <div id="digitalGrid" class="digital-grid"></div>
             <div class="guide-save"><button class="btn btn-outline" id="samplePreview">안 써 본 글자 미리보기</button><span id="samplePreviewStatus" role="status"></span></div>
             <div class="guide-save"><span id="guideSaveStatus" role="status">저장한 필체는 이 브라우저에 보관돼요.</span><button class="btn btn-primary" id="saveGuide">이 페이지 저장</button><button class="btn btn-outline" id="nextGuide">다음 페이지 →</button><a class="btn btn-outline" href="#studio">문장 써보기 ↓</a></div>
@@ -135,7 +141,7 @@
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="hangul-ink.js?v=2.2" defer></script>
   <script src="sample-ink.js?v=2.2" defer></script>
-  <script src="digital-guide.js?v=2.2" defer></script>
+  <script src="digital-guide.js?v=2.3" defer></script>
   <script src="vendor/ttf-writer.js" defer></script>
   <script src="font-export.js?v=2.2" defer></script>
   <script src="app.js?v=2.2" defer></script>
