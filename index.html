@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#fbf8f3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="필체연구소">
+  <meta name="description" content="가이드 종이에 내 글씨를 쓰고 사진을 올리면 웹에서 바로 내 필체로 글을 쓰는 손글씨 스튜디오">
+  <title>필체연구소 — 나의 손글씨를 웹에서</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="필체연구소 홈">
+        <span class="brand-icon">ㅎ<span>.</span></span>
+        <span class="brand-name">필체연구소 <small>MY HANDWRITING STUDIO</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="주요 메뉴">
+        <a class="active" href="#home"><span class="nav-icon">⌂</span> 시작하기</a>
+        <a href="#guide"><span class="nav-icon">▤</span> 가이드 용지</a>
+        <a href="#upload"><span class="nav-icon">◈</span> 필체 등록</a>
+        <a href="#studio"><span class="nav-icon">✎</span> 손글씨 스튜디오</a>
+      </nav>
+      <div class="sidebar-note">
+        <span class="privacy-dot"></span> AI API 없이 실행
+        <p>사진과 손글씨 데이터는<br>내 브라우저에만 보관돼요.</p>
+      </div>
+      <div class="sidebar-footer">V1.2 · 2026</div>
+    </aside>
+
+    <main id="home" class="content">
+      <header class="topbar">
+        <div class="breadcrumb">나의 작업실 <span>/</span> 시작하기</div>
+        <div class="top-actions"><span class="local-pill"><span></span> 로컬 저장</span><button id="exportBackupTop" class="top-icon" title="손글씨 백업 다운로드" aria-label="백업 다운로드">⇩</button></div>
+      </header>
+
+      <div class="page-wrap">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="sparkle">✦</span> HANDWRITING MADE PERSONAL</div>
+            <h1>내 손글씨를,<br><em>웹에서도 그대로.</em></h1>
+            <p>종이에 쓴 글씨를 사진으로 올려보세요.<br>나만의 글씨로 편지와 메모를 만들 수 있어요.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="#guide">내 손글씨 만들기 <span>↗</span></a><a class="btn btn-text" href="#studio">에디터 구경하기 <span>→</span></a></div>
+          </div>
+          <div class="hero-art" aria-label="손글씨 편지 일러스트">
+            <div class="art-deco deco-1">✳</div><div class="art-deco deco-2">✷</div>
+            <div class="paper-shadow"></div>
+            <div class="paper-note"><div class="paper-top"><span>Dear today,</span><span>♡</span></div><div class="paper-script">오늘도 나답게,<br>좋은 하루를.</div><div class="paper-squiggle">~~~~~~~~~~~</div><div class="paper-bottom">from. me</div></div>
+            <div class="art-sticker">내 손글씨<br>그대로!</div>
+          </div>
+        </section>
+
+        <section class="summary-row" aria-label="서비스 요약">
+          <div class="summary-item"><div class="summary-icon">01</div><div><strong>3장의 가이드</strong><small>글씨를 직접 쓰고</small></div></div>
+          <div class="summary-item"><div class="summary-icon">02</div><div><strong>사진으로 등록</strong><small>영역을 정확히 추출하고</small></div></div>
+          <div class="summary-item"><div class="summary-icon">03</div><div><strong>웹에서 작성</strong><small>이미지로 저장해요</small></div></div>
+        </section>
+
+        <section id="guide" class="section-block">
+          <div class="section-heading"><div><span class="step-overline">STEP 01 / 가이드 용지</span><h2>먼저, 내 글씨를 모아볼까요?</h2><p>작은 예시 글자를 보고 칸마다 검은 펜으로 적어주세요. A4 실제 크기로 인쇄하는 것이 좋아요.</p></div><span class="section-number">01</span></div>
+          <div class="guide-card">
+            <div class="guide-preview"><div class="preview-page"><div class="preview-top"></div><div class="preview-page-title">나의 손글씨 수집 시트</div><div class="mini-grid" id="miniGrid"></div><div class="preview-line"></div><div class="preview-line second"></div></div></div>
+            <div class="guide-info"><div class="tag">A4 · 총 3페이지</div><h3>손글씨 243칸 수집용지</h3><p>자주 쓰는 한글 글자와 숫자, 문장부호가 들어 있어요. 각 칸의 왼쪽 위 회색 예시는 참고용이고, 그 아래에 직접 글씨를 쓰시면 돼요.</p><ul class="tips"><li>검은색 펜으로 또렷하게</li><li>칸 밖으로 벗어나지 않게</li><li>사진에 네 모서리 검은 마커 포함</li></ul><a class="btn btn-primary" href="손글씨_가이드용지_3장.pdf" download>가이드 용지 PDF 받기 <span>↓</span></a><div class="tiny-note">* 출력 시 '페이지에 맞춤' 대신 실제 크기(100%) 권장</div></div>
+          </div>
+        </section>
+
+        <section id="upload" class="section-block">
+          <div class="section-heading"><div><span class="step-overline">STEP 02 / 내 글씨 수집</span><h2>작성한 용지를 사진으로 올려주세요</h2><p>각 페이지를 올린 뒤 검은 마커 4개를 차례대로 선택하면 글자가 자동 분리돼요.</p></div><span class="section-number">02</span></div>
+          <div class="upload-grid">
+            <label class="upload-card" data-upload-card="0"><input type="file" accept="image/*" class="upload-input" data-page="0" aria-label="1번 용지 사진 업로드"><div class="upload-page">01 <span>/ 03</span></div><div class="upload-icon">⌁</div><strong>첫 번째 용지</strong><p>기본 표현 · 자주 쓰는 글자</p><span class="upload-status" id="pageStatus0">사진 선택하기 ↗</span></label>
+            <label class="upload-card" data-upload-card="1"><input type="file" accept="image/*" class="upload-input" data-page="1" aria-label="2번 용지 사진 업로드"><div class="upload-page">02 <span>/ 03</span></div><div class="upload-icon">⌁</div><strong>두 번째 용지</strong><p>한글 표현 확장</p><span class="upload-status" id="pageStatus1">사진 선택하기 ↗</span></label>
+            <label class="upload-card" data-upload-card="2"><input type="file" accept="image/*" class="upload-input" data-page="2" aria-label="3번 용지 사진 업로드"><div class="upload-page">03 <span>/ 03</span></div><div class="upload-icon">⌁</div><strong>세 번째 용지</strong><p>한글 · 숫자 · 기호</p><span class="upload-status" id="pageStatus2">사진 선택하기 ↗</span></label>
+          </div>
+          <div class="notice"><span>ⓘ</span><p><b>정확도 안내</b> · 이 버전은 사진 속 가이드 위치를 기준으로 글씨를 추출해요. AI로 쓰지 않은 모든 한글을 만들어주지는 않아요. 미등록 글자는 편집기에서 직접 추가할 수 있습니다.</p></div>
+        </section>
+
+        <section id="studio" class="section-block studio-section">
+          <div class="section-heading"><div><span class="step-overline">STEP 03 / 손글씨 스튜디오</span><h2>이제, 내 글씨로 써보세요</h2><p>입력한 문장에 내가 등록한 글씨를 적용하고 이미지를 저장해 보세요.</p></div><span class="section-number">03</span></div>
+          <div class="studio-grid">
+            <div class="studio-editor">
+              <div class="panel-title"><span>✎</span><h3>문장 입력</h3></div>
+              <textarea id="editorText" spellcheck="false" placeholder="여기에 문장을 입력해 주세요">오늘도 좋은 하루 보내세요!
+나만의 손글씨로 쓰는 작은 기록.</textarea>
+              <div class="editor-controls"><div class="controls-title">꾸미기 <span>STYLE</span></div>
+                <div class="control-row"><label for="fontSize">글씨 크기</label><input type="range" id="fontSize" min="26" max="92" value="58"><output id="fontSizeLabel">58px</output></div>
+                <div class="control-row"><label for="letterSpacing">글자 간격</label><input type="range" id="letterSpacing" min="-8" max="20" value="1"><output id="letterSpacingLabel">1px</output></div>
+                <div class="control-row"><label for="naturalness">자연스러움</label><input type="range" id="naturalness" min="0" max="8" value="2"><output id="naturalnessLabel">2</output></div>
+                <div class="control-group"><span class="group-label">잉크 색상</span><div class="swatches" id="inkSwatches"><button class="swatch selected" style="--swatch:#312e33" data-color="#312e33" title="차콜" aria-label="차콜색 잉크"></button><button class="swatch" style="--swatch:#2b4a75" data-color="#2b4a75" title="네이비" aria-label="남색 잉크"></button><button class="swatch" style="--swatch:#75564c" data-color="#75564c" title="브라운" aria-label="갈색 잉크"></button><button class="swatch" style="--swatch:#b45f65" data-color="#b45f65" title="로즈" aria-label="분홍색 잉크"></button></div></div>
+                <div class="control-group"><span class="group-label">종이 배경</span><div class="paper-options" id="paperOptions"><button class="paper-option selected" data-paper="cream">크림</button><button class="paper-option" data-paper="white">화이트</button><button class="paper-option" data-paper="lined">줄노트</button></div></div>
+              </div>
+              <div class="editor-buttons"><button class="btn btn-primary" id="downloadPng">PNG로 저장 <span>↓</span></button><button class="btn btn-outline" id="exportBackup">내 글씨 백업</button></div>
+            </div>
+            <div class="studio-preview"><div class="preview-heading"><div><span class="preview-dot"></span><strong>실시간 미리보기</strong></div><span id="coverage">등록된 글자 0개</span></div><div class="canvas-wrap"><canvas id="letterCanvas" width="1150" height="730" aria-label="손글씨로 변환된 문장 미리보기"></canvas></div><div class="preview-foot"><span>MY HANDWRITING STUDIO</span><span>직접 작성한 글씨를 조합해 보여줘요.</span></div>
+              <div class="missing-area" id="missingArea"><div class="missing-title"><span>✎</span> 아직 등록하지 않은 글자 <small>눌러서 직접 추가할 수 있어요</small></div><div id="missingGlyphs" class="missing-glyphs"></div></div>
+            </div>
+          </div>
+          <div class="data-tools"><div><strong>내 글씨 관리</strong><p>기기 또는 브라우저 데이터를 지우면 손글씨도 사라질 수 있어요. JSON 백업 파일을 보관해 주세요.</p></div><div class="data-tools-actions"><label class="btn btn-outline small" for="importBackup">백업 불러오기</label><input id="importBackup" type="file" accept="application/json,.json" hidden><button class="btn btn-danger small" id="clearData">글씨 초기화</button></div></div>
+        </section>
+        <footer>필체연구소 <span>·</span> AI 호출 없는 브라우저 기반 손글씨 도구 <span>·</span> BETA</footer>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="calibrationDialog" class="modal calibrate-modal"><div class="modal-bar"><div><span class="step-overline">사진 정렬</span><h3 id="calibrationHeading">네 모서리를 지정해 주세요</h3></div><button class="modal-close" id="closeCalibration" aria-label="닫기">×</button></div><p class="modal-desc" id="calibrationHelp">사진에 있는 검은 사각 마커의 <b>가운데</b>를 왼쪽 위 → 오른쪽 위 → 오른쪽 아래 → 왼쪽 아래 순서로 눌러주세요.</p><div class="calibration-stage"><canvas id="calibrationCanvas" width="720" height="500"></canvas></div><div class="calibration-status"><span id="calibrationSteps">마커 0 / 4개 선택됨</span><span class="calibration-tip">사진은 다른 서버로 전송되지 않습니다</span></div><div class="modal-actions"><button class="btn btn-outline" id="resetPoints">다시 지정</button><button class="btn btn-primary" id="confirmCalibration" disabled>4개 마커 지정하기</button></div></dialog>
+  <dialog id="drawDialog" class="modal draw-modal"><div class="modal-bar"><div><span class="step-overline">빠른 글자 추가</span><h3>“<span id="drawCharTitle">가</span>” 글자 직접 쓰기</h3></div><button class="modal-close" id="closeDraw" aria-label="닫기">×</button></div><p class="modal-desc">네모 안에 마우스나 손가락으로 크게 써주세요. 등록하면 미리보기에 바로 적용돼요.</p><div class="draw-pad-frame"><canvas id="drawCanvas" width="350" height="350"></canvas></div><div class="modal-actions"><button id="clearDrawing" class="btn btn-outline">다시 쓰기</button><button id="saveDrawing" class="btn btn-primary">이 글자 저장하기 <span>✓</span></button></div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>
