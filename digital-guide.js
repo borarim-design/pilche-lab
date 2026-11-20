@@ -81,6 +81,16 @@ window.initDigitalGuide = ({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,
       const clear=document.createElement('button');clear.textContent='다시 쓰기';clear.type='button';clear.setAttribute('aria-label',`${ch} 다시 쓰기`);
       actions.append(undo,clear);heading.append(label,actions);
       const cv=document.createElement('canvas');cv.width=cv.height=350;cv.setAttribute('aria-label',`${ch} 필기 칸`);
+      // The guide is a painted CSS background, outside the saved ink bitmap.
+      const guide=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      guide.setAttribute('viewBox','0 0 350 350');
+      const reference=document.createElementNS(guide.namespaceURI,'text');
+      for(const [name,value] of Object.entries({x:175,y:267,'text-anchor':'middle','font-family':'sans-serif','font-size':254,'font-weight':400,fill:'#dcd6cf'})){
+        reference.setAttribute(name,String(value));
+      }
+      reference.textContent=ch;guide.appendChild(reference);
+      const guideUrl='data:image/svg+xml,'+encodeURIComponent(new XMLSerializer().serializeToString(guide));
+      cv.style.setProperty('--letter-guide','url("'+guideUrl+'")');
       const cx=cv.getContext('2d');let active=null,previous=null,history=[],touched=false;
       const initial=drafts.get(ch)||glyphData.get(ch);
       if(initial){const img=new Image();img.onload=()=>{if(!touched)cx.drawImage(img,0,0,350,350);};img.src=initial;}

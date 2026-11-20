@@ -1,5 +1,5 @@
-const CACHE_NAME='pilche-lab-cache-v2.3';
-const CORE=['./','./index.html','./styles.css?v=2.3','./hangul-ink.js?v=2.2','./sample-ink.js?v=2.2','./digital-guide.js?v=2.3','./vendor/ttf-writer.js','./font-export.js?v=2.2','./app.js?v=2.2','./manifest.webmanifest','./icon-192.png','./icon-512.png','./손글씨_가이드용지_3장.pdf'];
+const CACHE_NAME='pilche-lab-cache-v2.4';
+const CORE=['./','./index.html','./styles.css?v=2.4','./hangul-ink.js?v=2.2','./sample-ink.js?v=2.2','./digital-guide.js?v=2.4','./vendor/ttf-writer.js','./font-export.js?v=2.2','./app.js?v=2.2','./manifest.webmanifest','./icon-192.png','./icon-512.png','./손글씨_가이드용지_3장.pdf'];
 self.addEventListener('install', event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('pilche-lab-cache-')&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
