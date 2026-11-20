@@ -46,7 +46,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   function setGlyphInMemory(ch,url) {
     glyphData.set(ch,url);
     const img=new Image();
-    img.onload=()=>{glyphImages.set(ch,img);clearTintCache();renderLetter();renderMissing();};
+    img.onload=()=>{if(glyphData.get(ch)!==url)return;glyphImages.set(ch,img);clearTintCache();renderLetter();renderMissing();};
     img.src=url;
   }
   function clearTintCache(){tintedCache.clear();}

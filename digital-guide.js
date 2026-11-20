@@ -27,7 +27,7 @@ window.initDigitalGuide = ({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,
     $('guideSaveStatus').textContent='필체 저장 중…';
     saving=saving.then(async()=>{await saveGlyphs(items);for(const ch of empty)await eraseGlyph(ch);}).then(()=>{
       $('guideSaveStatus').textContent=isPersistent()?`✓ 저장 완료 · ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}`:'이 환경에서는 임시 보관돼요. 내 글씨 백업을 내려받아 주세요.';
-    }).catch(()=>{$('guideSaveStatus').textContent='저장하지 못했어요. 칸에 다시 써주세요.';});
+    }).catch(()=>{$('guideSaveStatus').textContent='저장하지 못했어요. 칸에 다시 써주세요.';return false;});
     return saving;
   }
   function showPage() {
@@ -68,7 +68,7 @@ window.initDigitalGuide = ({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,
       tile.append(heading,cv);$('digitalGrid').appendChild(tile);cells.set(ch,cv);
     }
   }
-  $('saveGuide').addEventListener('click',()=>save().then(()=>toast('작성한 글씨를 저장했어요.')));
+  $('saveGuide').addEventListener('click',()=>save().then(result=>{if(result!==false)toast('작성한 글씨를 저장했어요.');}));
   $('guideTabs').addEventListener('change',async e=>{const next=Number(e.target.value);await save();page=next;showPage();});
   $('nextGuide').addEventListener('click',async()=>{await save();page=(page+1)%pages.length;showPage();$('guideTabs').scrollIntoView({block:'start'});});
   window.addEventListener('pilche-guide-refresh',()=>{drafts.clear();dirty.clear();showPage();});
