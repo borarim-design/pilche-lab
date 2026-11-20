@@ -38,9 +38,9 @@
     for(const contour of contours)for(const p of contour){xMin=Math.min(xMin,p.x);yMin=Math.min(yMin,p.y);xMax=Math.max(xMax,p.x);yMax=Math.max(yMax,p.y);}
     return Number.isFinite(xMin)?{xMin,yMin,xMax,yMax}:{xMin:0,yMin:0,xMax:0,yMax:0};
   }
-  async function build({glyphs,H,family='나의 필체',progress=()=>{}}) {
+  async function build({glyphs,H,measuredPlans=new Map(),family='나의 필체',progress=()=>{}}) {
     const required=[...H.initials,...H.basicVowels],missing=required.filter(c=>!glyphs.has(c));
-    if(missing.length)throw new Error(`필수 가이드 ${missing.length}칸을 먼저 써주세요: ${missing.join(' ')}`);
+    if(!measuredPlans.size&&missing.length)throw new Error(`필수 가이드 ${missing.length}칸을 먼저 써주세요: ${missing.join(' ')}`);
     const font=JSON.parse(JSON.stringify(window.PilcheEmptyFont));
     const uid=Date.now().toString(36),psName='Pilche-'+uid;
     font.name={fontFamily:family,fontSubFamily:'Regular',fullName:family+' Regular',uniqueSubFamily:psName,postScriptName:psName,version:'Version 2.1'};
@@ -52,15 +52,16 @@
     const indexes=new Map();
     for(const [ch,contours] of glyphs) {
       const cp=ch.codePointAt(0);
-      if([...ch].length!==1||cp===32||cp>0xffff||!contours.length)continue;
+      const component=ch.includes('/')&&ch.length>1;
+      if((!component&&[...ch].length!==1)||cp===32||cp>0xffff||!contours.length)continue;
       const box=bounds(contours);
       indexes.set(ch,font.glyf.length);
-      font.glyf.push({name:'uni'+cp.toString(16).toUpperCase(),unicode:[cp],contours,...box,advanceWidth:1024,leftSideBearing:box.xMin});
+      font.glyf.push({name:component?'piece'+font.glyf.length:'uni'+cp.toString(16).toUpperCase(),unicode:component?[]:[cp],contours,...box,advanceWidth:1024,leftSideBearing:box.xMin});
     }
     for(let cp=0xac00;cp<=0xd7a3;cp++) {
       const ch=String.fromCodePoint(cp);
       if(!indexes.has(ch)) {
-        const components=H.placements(ch).map(p=>{
+        const components=(measuredPlans.get(ch)||H.placements(ch)).map(p=>{
           const sx=Math.round(p.w/102*16384)/16384,sy=Math.round(p.h/102*16384)/16384;
           return {glyphIndex:indexes.get(p.char),transform:{a:sx,b:0,c:0,d:sy,e:Math.round(p.x*8-104*sx),f:Math.round((128-p.y-p.h)*8-104*sy)}};
         });

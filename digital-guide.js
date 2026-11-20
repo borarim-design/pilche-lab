@@ -4,8 +4,9 @@ window.initDigitalGuide = ({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,
   function addPages(title,chars,size) {
     for(let i=0;i<chars.length;i+=size) pages.push({title:`${title} ${Math.floor(i/size)+1}`,chars:chars.slice(i,i+size)});
   }
-  addPages('필수 · 자음',H.initials,10);
-  addPages('필수 · 모음',H.basicVowels,7);
+  addPages('완성 글자',window.SampleInk.samples,10);
+  addPages('기존 방식 · 자음',H.initials,10);
+  addPages('기존 방식 · 모음',H.basicVowels,7);
   LAYOUT.pages.forEach((chars,i)=>addPages(`선택 · 완성 글자 용지 ${i+1}`,chars,12));
   let page=0, saving=Promise.resolve();
   const cells=new Map(),drafts=new Map(),dirty=new Set();
@@ -32,7 +33,7 @@ window.initDigitalGuide = ({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,
   }
   function showPage() {
     cells.clear();$('digitalGrid').replaceChildren();$('guideTabs').value=String(page);
-    $('guideHelp').textContent=page<4 ? '예시와 같은 자음·모음을 빈 칸에 크게 써주세요. 획을 마치면 자동 저장돼요. 화면을 넘기려면 칸 바깥을 밀어주세요.' : '완성 글자는 선택 사항이에요. 자주 쓰는 글자를 통째로 쓰면 조합 없이 원본 글씨를 사용해요.';
+    $('guideHelp').textContent=page<12 ? '한 칸에 완성된 글자 하나를 평소처럼 써주세요. 3페이지(30자) 뒤 문장 써보기에서 조합 결과를 확인하세요.' : page<16 ? '예시와 같은 자음·모음을 빈 칸에 크게 써주세요. 획을 마치면 자동 저장돼요. 화면을 넘기려면 칸 바깥을 밀어주세요.' : '완성 글자는 선택 사항이에요. 자주 쓰는 글자를 통째로 쓰면 조합 없이 원본 글씨를 사용해요.';
     for(const ch of pages[page].chars) {
       const tile=document.createElement('div');tile.className='digital-cell';
       const heading=document.createElement('div');heading.className='cell-heading';

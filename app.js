@@ -13,7 +13,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   const glyphData = new Map(); // char => PNG data URL
   const glyphImages = new Map();
   const tintedCache = new Map();
-  const H = window.HangulInk;
+  const H = window.HangulInk, samples = window.SampleInk;
   let db = null, currentPage = -1, calibrationImage = null;
   let markerPoints = [], warpedPage = null, calibrationMode = 'choose';
   let pendingChar = '', drawing = false, previousDrawPoint = null;
@@ -46,7 +46,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   function setGlyphInMemory(ch,url) {
     glyphData.set(ch,url);
     const img=new Image();
-    img.onload=()=>{if(glyphData.get(ch)!==url)return;glyphImages.set(ch,img);clearTintCache();renderLetter();renderMissing();};
+    img.onload=()=>{if(glyphData.get(ch)!==url)return;glyphImages.set(ch,img);samples.learn(ch,img);clearTintCache();renderLetter();renderMissing();};
     img.src=url;
   }
   function clearTintCache(){tintedCache.clear();}
@@ -71,7 +71,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
       else{card.classList.remove('done');status.textContent='사진 선택하기 ↗';}
     }
     renderMissing();
-    $('guideProgress').textContent = `기본 필체 ${[...H.initials,...H.basicVowels].filter(c=>glyphData.has(c)).length} / 33`;
+    $('guideProgress').textContent = `완성 글자 ${samples.samples.filter(c=>glyphData.has(c)).length} / 120`;
   }
 
   // A sheet must be photographed with its four black registration squares visible.
@@ -261,7 +261,10 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   function getTintedGlyph(ch){
     const key=ch+'|'+settings.color;
     if(tintedCache.has(key))return tintedCache.get(key);
-    const image=glyphImages.get(ch) || H.compose(ch,c=>glyphImages.get(c),()=>document.createElement('canvas'));if(!image)return null;
+    let measured=null;
+    const layout=!glyphImages.has(ch)&&H.parts(ch)&&samples.layout(ch);
+    if(layout){measured=document.createElement('canvas');measured.width=measured.height=128;const ctx=measured.getContext('2d');for(const p of layout)ctx.drawImage(samples.images.get(p.char),13,13,102,102,p.x,p.y,p.w,p.h);}
+    const image=glyphImages.get(ch) || measured || H.compose(ch,c=>glyphImages.get(c),()=>document.createElement('canvas'));if(!image)return null;
     const cv=document.createElement('canvas');cv.width=128;cv.height=128;
     const cx=cv.getContext('2d');cx.drawImage(image,0,0,128,128);
     cx.globalCompositeOperation='source-in';cx.fillStyle=settings.color;cx.fillRect(0,0,128,128);
@@ -314,7 +317,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   }
   function renderMissing(){
     const text=$('editorText').value;
-    const isReady = ch => glyphData.has(ch) || (H.parts(ch) && H.dependencies(ch).every(c=>glyphData.has(c)));
+    const isReady = ch => glyphData.has(ch) || (H.parts(ch) && (samples.layout(ch)||H.dependencies(ch).every(c=>glyphData.has(c))));
     const chars = [...text].filter(ch=>ch.trim());
     const direct = chars.filter(ch=>glyphData.has(ch)).length;
     const combined = chars.filter(ch=>!glyphData.has(ch)&&isReady(ch)).length;
@@ -365,10 +368,25 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   syncRange('fontSize','size','px');syncRange('letterSpacing','spacing','px');syncRange('naturalness','naturalness');
   $('editorText').addEventListener('input',()=>{renderLetter();renderMissing();});
   let fontDownloadUrl=null,lastFontFace=null;
+  $('samplePreview').addEventListener('click',()=>{
+    const examples=[];
+    const candidates='오늘도 좋은 하루 보내세요 사랑하는 우리 가족과 함께 걷는 길 마음 가득 기쁜 봄 햇살 꽃잎 한글 편지'+Array.from({length:11172},(_,i)=>String.fromCharCode(0xac00+i)).join('');
+    for(const ch of candidates){
+      if(examples.length===8)break;
+      if(H.parts(ch)&&!glyphData.has(ch)&&!examples.includes(ch)&&samples.layout(ch))examples.push(ch);
+    }
+    if(!examples.length){$('samplePreviewStatus').textContent='아직 조합할 자모가 부족해요. 다음 칸도 채워주세요.';return;}
+    const preview=document.createElement('canvas');preview.width=examples.length*82;preview.height=88;
+    const ctx=preview.getContext('2d');
+    examples.forEach((ch,i)=>ctx.drawImage(getTintedGlyph(ch),i*82,4,80,80));
+    preview.style.maxWidth='100%';preview.style.height='auto';preview.setAttribute('aria-label',examples.join(' '));
+    $('samplePreviewStatus').replaceChildren('직접 쓰지 않은 글자 · '+examples.join(' '),document.createElement('br'),preview);
+  });
   $('generateTtf').addEventListener('click',async()=>{
     const button=$('generateTtf'),status=$('ttfStatus');
     const missing=[...H.initials,...H.basicVowels].filter(ch=>!glyphData.has(ch));
-    if(missing.length){status.textContent=`필수 가이드 ${missing.length}칸이 남았어요: ${missing.join(' ')}. 가이드에서 먼저 작성해 주세요.`;return;}
+    const remaining=samples.samples.filter(c=>!glyphData.has(c));
+    if(missing.length&&remaining.length){status.textContent=`완성 글자 ${remaining.length}칸을 더 작성해 주세요. 다음 글자: ${remaining.slice(0,6).join(' ')}`;return;}
     button.disabled=true;$('downloadTtf').hidden=true;$('ttfPreview').hidden=true;
     try {
       const family=$('fontFamilyName').value.trim()||'나의 필체';
@@ -383,7 +401,10 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
         if(contours.length)outlines.set(ch,contours);
         if(i%8===0)await new Promise(r=>setTimeout(r,0));
       }
-      const result=await window.PilcheFont.build({glyphs:outlines,H,family,progress:p=>{status.textContent=`한글 폰트 만드는 중… ${p}%`;}});
+      const measuredPlans=new Map();
+      for(let cp=0xac00;cp<=0xd7a3;cp++){const ch=String.fromCharCode(cp);if(outlines.has(ch))continue;const plan=samples.layout(ch);if(plan)measuredPlans.set(ch,plan);else if(missing.length)throw new Error(`‘${ch}’의 자모 분리가 어려워요. ${H.parts(ch).filter(Boolean).join(' · ')} 획 사이에 여백을 두고 해당 용지를 확인해 주세요.`);}
+      for(const [key,tile] of samples.images)outlines.set(key,window.PilcheFont.trace(tile.getContext('2d').getImageData(0,0,128,128).data));
+      const result=await window.PilcheFont.build({glyphs:outlines,H,family,measuredPlans,progress:p=>{status.textContent=`한글 폰트 만드는 중… ${p}%`;}});
       const face=new FontFace('PilchePreview'+Date.now(),result.buffer);await face.load();
       if(lastFontFace)document.fonts.delete(lastFontFace);document.fonts.add(face);lastFontFace=face;
       if(fontDownloadUrl)URL.revokeObjectURL(fontDownloadUrl);
@@ -429,7 +450,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   $('clearData').addEventListener('click',async()=>{
     if(!confirm('등록된 손글씨를 모두 삭제할까요? 먼저 JSON 백업을 받는 것을 추천해요.'))return;
     if(db){await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
-    glyphData.clear();glyphImages.clear();clearTintCache();
+    samples.reset();glyphData.clear();glyphImages.clear();clearTintCache();
     for(let i=0;i<3;i++)pageStats[i]=null;
     localStorage.removeItem('pilche-page-stats');updateCoverage();renderLetter();toast('등록된 손글씨가 초기화되었어요.');
     window.dispatchEvent(new Event('pilche-guide-refresh'));
@@ -446,7 +467,7 @@ const LAYOUT = {"version":1,"paperMm":[210,297],"markersMm":[[12,13],[198,13],[1
   }
   async function eraseGlyph(ch) {
     if(db) await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(ch);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
-    glyphData.delete(ch);glyphImages.delete(ch);clearTintCache();updateCoverage();renderLetter();
+    samples.forget(ch);glyphData.delete(ch);glyphImages.delete(ch);clearTintCache();updateCoverage();renderLetter();
   }
   initDb().finally(()=>{updateCoverage();renderLetter();window.initDigitalGuide({H,LAYOUT,glyphData,saveGlyphs,eraseGlyph,imageGlyph,toast,isPersistent:()=>!!db});});
 })();
